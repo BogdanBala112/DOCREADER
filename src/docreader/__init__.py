@@ -1,0 +1,1 @@
+"""DOCREADER application package."""
