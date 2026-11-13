@@ -74,4 +74,4 @@ improvements that evidence supports.
 
 ## Status
 
-Project setup is in progress.
+Project setup is in progress
