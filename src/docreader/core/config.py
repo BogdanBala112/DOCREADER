@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     postgres_password: str = Field(repr=False)
     postgres_host: str = "localhost"
     postgres_port: int = 5433
+    max_upload_bytes: int = 10 * 1024 * 1024
 
     @property
     def database_url(self) -> URL:

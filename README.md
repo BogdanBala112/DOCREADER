@@ -1,8 +1,9 @@
 # DOCREADER
 
 DOCREADER is a production-oriented Retrieval-Augmented Generation (RAG)
-application. Users will upload Markdown documents and ask questions whose
-answers are grounded in the uploaded content and include source citations.
+application. Users will upload text-bearing files such as TXT, Markdown, DOCX,
+PDF, CSV, and XLSX, then ask questions whose answers are grounded in the
+uploaded content and include source citations.
 
 The project is being built as an AI engineering portfolio project, with an
 emphasis on measurable retrieval quality, reliability, testing, and
@@ -12,7 +13,7 @@ observability—not only on calling an LLM.
 
 - FastAPI REST API with asynchronous endpoints
 - Provider-independent model interface for local and hosted models
-- Document upload, validation, and token-aware chunking
+- Multi-format document upload, validation, extraction, and token-aware chunking
 - Embeddings stored in PostgreSQL with pgvector
 - Semantic and hybrid retrieval
 - Streamed answers with citations
@@ -37,7 +38,8 @@ observability—not only on calling an LLM.
 ### 2. Plain RAG
 
 - Configure PostgreSQL, pgvector, SQLAlchemy, and Alembic
-- Build document ingestion, chunking, embedding, and storage
+- Build format-neutral ingestion for TXT, Markdown, DOCX, PDF, CSV, and XLSX
+- Add chunking, embedding, and storage
 - Retrieve relevant chunks and generate cited answers
 - Add model-client mocks, error handling, and CI
 
@@ -118,6 +120,33 @@ changes. Use `docker compose logs -f api` to follow application logs. Use
 `docker compose down` to stop the stack without deleting its data. Adding
 `--volumes` permanently deletes the development database.
 
+## Database schema and migrations
+
+Alembic versions the PostgreSQL schema. Apply all pending revisions inside the
+API container:
+
+```bash
+docker compose exec api alembic upgrade head
+```
+
+The initial content model contains:
+
+- `documents` for the logical identity shown to a user.
+- `assets` for immutable uploaded file versions and source metadata.
+- `segments` for normalized retrievable text and format-specific locators.
+
+Locators preserve provenance without coupling retrieval to a parser. Examples
+include PDF page numbers, DOCX paragraph positions, spreadsheet sheet/row
+ranges, and text line ranges.
+
+After changing a SQLAlchemy model, generate and verify a migration locally:
+
+```bash
+uv run alembic revision --autogenerate -m "describe schema change"
+uv run alembic check
+uv run alembic upgrade head
+```
+
 ## Local API
 
 Running the API directly on the host remains available for debugging. The
@@ -140,6 +169,7 @@ Run the quality checks with:
 ```bash
 uv run ruff check .
 uv run pytest
+RUN_INTEGRATION_TESTS=1 uv run pytest -m integration
 ```
 
 ## Status
