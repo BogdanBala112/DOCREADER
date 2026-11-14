@@ -21,6 +21,8 @@ services:
     ports:
       - "${API_PORT:-8000}:8000"
     volumes:
+      - ./alembic.ini:/app/alembic.ini:ro
+      - ./migrations:/app/migrations:ro
       - ./src:/app/src:ro
     depends_on:
       db:

@@ -2,7 +2,12 @@
 
 from sqlalchemy import text
 from sqlalchemy.engine import URL
-from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 
 
 def create_database_engine(database_url: URL) -> AsyncEngine:
@@ -10,6 +15,16 @@ def create_database_engine(database_url: URL) -> AsyncEngine:
     return create_async_engine(
         database_url,
         pool_pre_ping=True,
+    )
+
+
+def create_session_factory(
+    engine: AsyncEngine,
+) -> async_sessionmaker[AsyncSession]:
+    """Create sessions that retain loaded state after a successful commit."""
+    return async_sessionmaker(
+        bind=engine,
+        expire_on_commit=False,
     )
 
 
