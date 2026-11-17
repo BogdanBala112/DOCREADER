@@ -8,12 +8,14 @@ from sqlalchemy.orm import selectinload
 
 from docreader.application.ingest import persist_text_document
 from docreader.core.config import get_settings
+from docreader.core.embeddings import EMBEDDING_DIMENSIONS
 from docreader.infrastructure.database import (
     create_database_engine,
     create_session_factory,
 )
 from docreader.infrastructure.models import Asset, Document
 from docreader.ingestion.text import prepare_text_upload
+from tests.hash_embedder import HashEmbeddingClient
 
 pytestmark = [
     pytest.mark.integration,
@@ -33,8 +35,9 @@ async def test_text_upload_is_stored_and_can_be_removed() -> None:
         max_bytes=1000,
     )
 
+    embedder = HashEmbeddingClient(EMBEDDING_DIMENSIONS)
     async with session_factory() as session:
-        stored = await persist_text_document(session, upload)
+        stored = await persist_text_document(session, upload, embedder)
 
     async with session_factory() as session:
         query = (
@@ -46,6 +49,7 @@ async def test_text_upload_is_stored_and_can_be_removed() -> None:
 
         assert document.title == "notes"
         assert document.assets[0].file_content == b"Hello retrieval\n"
+        assert len(document.assets[0].segments[0].embedding) == EMBEDDING_DIMENSIONS
         assert document.assets[0].segments[0].locator == {
             "line_end": 1,
             "line_start": 1,

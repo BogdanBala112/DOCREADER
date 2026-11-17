@@ -11,7 +11,7 @@ DOCUMENT_ID = UUID("0b6f6f0e-2f0a-4f8a-9c1d-6d5c2a9e8f11")
 
 
 def test_text_upload_returns_created_document(monkeypatch) -> None:
-    async def fake_persist(_session, upload):
+    async def fake_persist(_session, upload, _embedder):
         assert upload.filename == "notes.txt"
         assert upload.segments[0].content == "Hello retrieval"
         return StoredDocument(
@@ -46,7 +46,7 @@ def test_text_upload_returns_created_document(monkeypatch) -> None:
 
 
 def test_markdown_upload_is_accepted(monkeypatch) -> None:
-    async def fake_persist(_session, upload):
+    async def fake_persist(_session, upload, _embedder):
         assert upload.media_type == "text/markdown"
         return StoredDocument(
             document_id=DOCUMENT_ID,

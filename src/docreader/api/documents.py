@@ -8,6 +8,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from docreader.application.ingest import persist_text_document
 from docreader.core.config import get_settings
+from docreader.infrastructure.embeddings import EmbeddingError
 from docreader.ingestion.text import (
     DocumentTooLargeError,
     EmptyDocumentError,
@@ -65,7 +66,16 @@ async def create_document(file: UploadFile, request: Request) -> DocumentCreated
     session_factory = request.app.state.session_factory
     try:
         async with session_factory() as session:
-            stored = await persist_text_document(session, upload)
+            stored = await persist_text_document(
+                session,
+                upload,
+                request.app.state.embedder,
+            )
+    except EmbeddingError as error:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Embedding provider is unavailable",
+        ) from error
     except SQLAlchemyError as error:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
