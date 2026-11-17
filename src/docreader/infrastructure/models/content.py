@@ -3,6 +3,7 @@
 from typing import Any
 from uuid import UUID
 
+from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
     BigInteger,
     CheckConstraint,
@@ -17,6 +18,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from docreader.core.embeddings import EMBEDDING_DIMENSIONS
 from docreader.infrastructure.models.base import (
     Base,
     TimestampMixin,
@@ -119,6 +121,7 @@ class Segment(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     )
     position: Mapped[int] = mapped_column(Integer, nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
+    embedding: Mapped[list[float] | None] = mapped_column(Vector(EMBEDDING_DIMENSIONS))
     token_count: Mapped[int | None] = mapped_column(Integer)
     locator: Mapped[dict[str, Any]] = mapped_column(
         JSONB,

@@ -11,6 +11,8 @@ requires-python = ">=3.12"
 dependencies = [
     "alembic>=1.14,<2.0",
     "fastapi>=0.115,<1.0",
+    "httpx>=0.28,<1.0",
+    "fastembed>=0.6,<1.0",
     "pgvector>=0.3,<1.0",
     "psycopg[binary]>=3.2,<4.0",
     "python-multipart>=0.0.20,<1.0",
@@ -37,7 +39,7 @@ asyncio_default_fixture_loop_scope = "function"
 markers = [
     "integration: requires the local PostgreSQL test database",
 ]
-pythonpath = ["src"]
+pythonpath = [".", "src"]
 testpaths = ["tests"]
 
 [tool.ruff]

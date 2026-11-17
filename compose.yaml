@@ -18,12 +18,15 @@ services:
     environment:
       POSTGRES_HOST: db
       POSTGRES_PORT: 5432
+      EMBEDDING_CACHE_DIR: /app/.cache/fastembed
+      CHAT_BASE_URL: http://host.docker.internal:1234/v1
     ports:
       - "${API_PORT:-8000}:8000"
     volumes:
       - ./alembic.ini:/app/alembic.ini:ro
       - ./migrations:/app/migrations:ro
       - ./src:/app/src:ro
+      - ./.cache/fastembed:/app/.cache/fastembed
     depends_on:
       db:
         condition: service_healthy
