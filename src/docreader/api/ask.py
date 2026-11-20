@@ -20,6 +20,7 @@ class AskRequest(BaseModel):
 
     question: str = Field(min_length=1, max_length=2_000)
     limit: int | None = Field(default=None, ge=1, le=20)
+    document_ids: list[UUID] | None = Field(default=None)
 
 
 class SegmentMatch(BaseModel):
@@ -62,6 +63,7 @@ async def ask(body: AskRequest, request: Request) -> AskResponse:
                 question,
                 limit,
                 settings.retrieval_max_distance,
+                body.document_ids,
             )
     except EmbeddingError as error:
         raise HTTPException(

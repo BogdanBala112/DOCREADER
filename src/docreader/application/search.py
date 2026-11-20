@@ -30,8 +30,12 @@ async def search_segments(
     question: str,
     limit: int,
     max_distance: float,
+    document_ids: list[UUID] | None = None,
 ) -> list[RetrievedSegment]:
-    """Return embedded segments within the maximum cosine distance."""
+    """Return embedded segments within the maximum cosine distance.
+
+    Pass document_ids to restrict results to those documents only.
+    """
     vector = (await embedder.embed([question]))[0]
     if len(vector) != embedder.dimensions:
         raise EmbeddingError(
@@ -54,6 +58,8 @@ async def search_segments(
         .order_by(distance)
         .limit(limit)
     )
+    if document_ids:
+        statement = statement.where(Document.id.in_(document_ids))
     rows = (await session.execute(statement)).all()
     return [
         RetrievedSegment(
