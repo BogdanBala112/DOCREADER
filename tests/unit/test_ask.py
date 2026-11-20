@@ -11,7 +11,9 @@ DOCUMENT_ID = UUID("0b6f6f0e-2f0a-4f8a-9c1d-6d5c2a9e8f11")
 
 
 def test_ask_returns_matching_passages(monkeypatch) -> None:
-    async def fake_search(_session, _embedder, question, limit, max_distance):
+    async def fake_search(
+        _session, _embedder, question, limit, max_distance, document_ids=None
+    ):
         assert question == "What is compound interest?"
         assert limit == 5
         assert max_distance == 0.45
